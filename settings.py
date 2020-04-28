@@ -1,23 +1,20 @@
-FILENAME = 'contests.csv'
-CONTEST_DURATION_SECONDS = 60
-CONTEST_PAUSE_SECONDS = 60
-CONTEST_MIN_BET = 10
-CONTEST_MAX_BET = 10000
+import os
+import importlib
+import imp
 
-# https://streamelements.com/dashboard/account/channels
-STREAMELEMENT_ACCOUNT_ID = ''
-STREAMELEMENT_JWT_TOKEN = ''
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+settings_dev_path = BASE_DIR+"/settings_dev.py"
 
-CACHE_SIZE = 1
-CSV_FORMAT = {
-    'START_ROW_INDEX': 1,
-    'QUESTION_COL_INDEX': 0,
-    'RESPONSE_COL_INDEX': 1,
-    'CHOICES_COL_INDEXES': [1, 2, 3]
-}
 
-API_ENDPOINTS = {
-    'POST_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}',
-    'START_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/start',
-    'CLOSE_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/winner',
-}
+if not os.path.isfile(settings_dev_path):
+    f = open(settings_dev_path, 'w+')
+    f.write('from settings_dist import *\n\n')
+    f.write('# This file will override settings_dist\n')
+    f.write('# FILENAME = \'my-questions.csv\'\n')
+    f.close()
+
+settings_module = os.getenv('SETTINGS_MODULE', None)
+if settings_module:
+    settings = importlib.import_module(settings_module)
+else:
+    settings = imp.load_source("settings_dev", settings_dev_path)

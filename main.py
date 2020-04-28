@@ -1,5 +1,7 @@
+from settings import settings
+
 import time
-import settings
+
 from models import Runner, Cache
 from utils import CSVReader, HttpClient
 
@@ -25,8 +27,6 @@ runner = Runner(
 
 while True:
     runner.next_contest()
-    # time.sleep(settings.CONTEST_DURATION_SECONDS)
-    time.sleep(15)
+    time.sleep(settings.CONTEST_DURATION_SECONDS)
     runner.complete_contest()
-    # time.sleep(settings.CONTEST_PAUSE_SECONDS)
-    time.sleep(15)
+    time.sleep(settings.CONTEST_PAUSE_SECONDS)
