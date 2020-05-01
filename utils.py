@@ -1,11 +1,8 @@
 import csv
 import json
-
 import requests
 
 from models import Contest, Choice
-
-r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 
 
 class HttpClient:
@@ -14,6 +11,7 @@ class HttpClient:
         self.__endpoint_post_contest = str(endpoints['POST_CONTEST']).replace('${ACCOUNT_ID}', account_id)
         self.__endpoint_start_contest = str(endpoints['START_CONTEST']).replace('${ACCOUNT_ID}', account_id)
         self.__endpoint_close_contest = str(endpoints['CLOSE_CONTEST']).replace('${ACCOUNT_ID}', account_id)
+        self.__endpoint_bet_contest = str(endpoints['BET_CONTEST']).replace('${ACCOUNT_ID}', account_id)
 
     def get_headers(self):
         return {
@@ -25,13 +23,21 @@ class HttpClient:
         endpoint = self.__endpoint_post_contest
         return requests.post(endpoint, data=json.dumps(contest.to_data_endpoint()), headers=self.get_headers())
 
+    def bet_contest(self, contest, amount, option_id):
+        endpoint = self.__endpoint_bet_contest.replace('${CONTEST_ID}', contest.id)
+        data = {
+            'amount': amount,
+            'optionId': option_id
+        }
+        return requests.post(endpoint, data=json.dumps(data), headers=self.get_headers())
+
     def start_contest(self, contest):
         endpoint = self.__endpoint_start_contest.replace('${CONTEST_ID}', contest.id)
         return requests.put(endpoint, headers=self.get_headers())
 
     def close_contest(self, contest):
         endpoint = self.__endpoint_close_contest.replace('${CONTEST_ID}', contest.id)
-        response = contest.choices[contest.response_index]
+        response = contest.options[contest.response_index]
         data = {"winnerId": response.id}
         return requests.put(endpoint, data=json.dumps(data), headers=self.get_headers())
 
@@ -57,15 +63,15 @@ class CSVReader:
         contest = Contest()
         contest.title = row[self.__csv_format['QUESTION_COL_INDEX']]
 
-        for index in self.__csv_format['CHOICES_COL_INDEXES']:
-            choice = Choice()
-            choice.title = row[index]
-            contest.choices.append(choice)
+        for index in self.__csv_format['OPTIONS_COL_INDEXES']:
+            option = Choice()
+            option.title = row[index]
+            contest.options.append(option)
 
             if index == self.__csv_format['RESPONSE_COL_INDEX']:
-                contest.response_index = len(contest.choices)-1
+                contest.response_index = len(contest.options)-1
 
         if contest.response_index is None:
-            raise Exception('Response index must be in the choices list')
+            raise Exception('Response index must be in the options list')
 
         return contest

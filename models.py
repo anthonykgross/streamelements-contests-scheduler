@@ -25,8 +25,8 @@ class Contest:
         self.max_bet = 0
         self.duration = 0
         self.response_index = None
-        self.choices = []
-        self.shuffle_choices_index = []
+        self.options = []
+        self.shuffle_options_index = []
 
     def to_data_endpoint(self):
         d = {
@@ -40,24 +40,24 @@ class Contest:
         if self.id is not None:
             d['_id'] = self.id
 
-        self.shuffle_choices_index = list(range(len(self.choices)))
-        random.shuffle(self.shuffle_choices_index)
+        self.shuffle_options_index = list(range(len(self.options)))
+        random.shuffle(self.shuffle_options_index)
 
         i = 1
-        for index in self.shuffle_choices_index:
-            choice = self.choices[index]
-            choice.command = str(i)
+        for index in self.shuffle_options_index:
+            option = self.options[index]
+            option.command = str(i)
             i += 1
-            d['options'].append(choice.to_data_endpoint())
+            d['options'].append(option.to_data_endpoint())
 
         return d
 
     def update_from_endpoint_response(self, json):
         self.id = json['_id']
         for index in range(len(json['options'])):
-            real_index = self.shuffle_choices_index[index]
-            choice = self.choices[real_index]
-            choice.id = json['options'][index]['_id']
+            real_index = self.shuffle_options_index[index]
+            option = self.options[real_index]
+            option.id = json['options'][index]['_id']
 
 
 class Runner:
@@ -70,11 +70,10 @@ class Runner:
         self.__max_bet = max_bet
         self.__contest_duration = contest_duration
 
-    def __get_random(self):
+    def __get_random(self, min, max):
         rate = 1000
-        max = len(self.__contests) - 1
         max *= rate
-        rnd = random.randrange(0, max)
+        rnd = random.randrange(min, max)
 
         if rnd > 0:
             rnd = round(
@@ -83,13 +82,20 @@ class Runner:
         return rnd
 
     def __get_random_contest(self):
-        rnd = self.__get_random()
+        rnd = self.__get_random(0, len(self.__contests) - 1)
 
         while self.__cache.exists(rnd):
-            rnd = self.__get_random()
+            rnd = self.__get_random(0, len(self.__contests) - 1)
 
         self.__cache.add(rnd)
         return self.__contests[rnd]
+
+    def bet(self, amount):
+        print('> Bet contest : %s' % amount)
+
+        rnd = self.__get_random(0, len(self.__current_contest.options) - 1)
+        option_id = self.__current_contest.options[rnd].id
+        self.__http_client.bet_contest(self.__current_contest, amount, option_id)
 
     def next_contest(self):
         print('> Next contest : ')

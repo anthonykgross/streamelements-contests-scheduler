@@ -25,8 +25,13 @@ runner = Runner(
     settings.CONTEST_DURATION_SECONDS,
 )
 
+nb_seconds_to_bet = round(settings.CONTEST_DURATION_SECONDS * 0.75)
+nb_seconds_rest = settings.CONTEST_DURATION_SECONDS-nb_seconds_to_bet
+
 while True:
     runner.next_contest()
-    time.sleep(settings.CONTEST_DURATION_SECONDS)
+    time.sleep(nb_seconds_to_bet)
+    runner.bet(settings.CONTEST_BET)
+    time.sleep(nb_seconds_rest)
     runner.complete_contest()
     time.sleep(settings.CONTEST_PAUSE_SECONDS)
