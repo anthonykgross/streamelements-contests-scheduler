@@ -10,14 +10,30 @@ class HttpClient:
         self.__token = token
         self.__endpoint_post_contest = str(endpoints['POST_CONTEST']).replace('${ACCOUNT_ID}', account_id)
         self.__endpoint_start_contest = str(endpoints['START_CONTEST']).replace('${ACCOUNT_ID}', account_id)
-        self.__endpoint_close_contest = str(endpoints['CLOSE_CONTEST']).replace('${ACCOUNT_ID}', account_id)
+        self.__endpoint_winner_contest = str(endpoints['WINNER_CONTEST']).replace('${ACCOUNT_ID}', account_id)
         self.__endpoint_bet_contest = str(endpoints['BET_CONTEST']).replace('${ACCOUNT_ID}', account_id)
+        self.__endpoint_list_contest = str(endpoints['LIST_CONTEST']).replace('${ACCOUNT_ID}', account_id)
+        self.__endpoint_refund_contest = str(endpoints['REFUND_CONTEST']).replace('${ACCOUNT_ID}', account_id)
+        self.__endpoint_close_contest = str(endpoints['CLOSE_CONTEST']).replace('${ACCOUNT_ID}', account_id)
 
     def get_headers(self):
         return {
             'Authorization': "Bearer "+self.__token,
             'Content-Type': "application/json",
         }
+
+    def refund(self):
+        endpoint = self.__endpoint_list_contest
+        response = requests.get(endpoint, headers=self.get_headers())
+        if response.status_code == 200:
+            data = response.json()
+
+            for contest in data['contests']:
+                if contest['state'] == 'running':
+                    url = self.__endpoint_close_contest.replace('${CONTEST_ID}', contest['_id'])
+                    requests.delete(url, headers=self.get_headers())
+                    url = self.__endpoint_refund_contest.replace('${CONTEST_ID}', contest['_id'])
+                    requests.delete(url, headers=self.get_headers())
 
     def post_contest(self, contest):
         endpoint = self.__endpoint_post_contest
@@ -36,7 +52,7 @@ class HttpClient:
         return requests.put(endpoint, headers=self.get_headers())
 
     def close_contest(self, contest):
-        endpoint = self.__endpoint_close_contest.replace('${CONTEST_ID}', contest.id)
+        endpoint = self.__endpoint_winner_contest.replace('${CONTEST_ID}', contest.id)
         response = contest.options[contest.response_index]
         data = {"winnerId": response.id}
         return requests.put(endpoint, data=json.dumps(data), headers=self.get_headers())

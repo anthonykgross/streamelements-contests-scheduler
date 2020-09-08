@@ -28,6 +28,8 @@ runner = Runner(
 nb_seconds_to_bet = round(settings.CONTEST_DURATION_SECONDS * 0.75)
 nb_seconds_rest = settings.CONTEST_DURATION_SECONDS-nb_seconds_to_bet
 
+runner.refund_contests()
+
 while True:
     runner.next_contest()
     time.sleep(nb_seconds_to_bet)

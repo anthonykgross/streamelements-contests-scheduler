@@ -70,6 +70,9 @@ class Runner:
         self.__max_bet = max_bet
         self.__contest_duration = contest_duration
 
+    def refund_contests(self):
+        self.__http_client.refund()
+
     def __get_random(self, min, max):
         rate = 1000
         max *= rate

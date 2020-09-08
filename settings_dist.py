@@ -18,8 +18,11 @@ CSV_FORMAT = {
 }
 
 API_ENDPOINTS = {
+    'LIST_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}',
     'POST_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}',
     'START_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/start',
-    'CLOSE_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/winner',
+    'WINNER_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/winner',
     'BET_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/bet',
+    'REFUND_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/refund',
+    'CLOSE_CONTEST': 'https://api.streamelements.com/kappa/v2/contests/${ACCOUNT_ID}/${CONTEST_ID}/close',
 }

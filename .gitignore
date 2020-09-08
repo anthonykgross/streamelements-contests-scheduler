@@ -2,3 +2,4 @@
 *__pycache__
 Quizz - Sheet1.csv
 settings_dev.py
+*.pyc
